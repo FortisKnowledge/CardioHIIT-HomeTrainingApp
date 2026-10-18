@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CARDIO HIIT</title>
+<style>
+/* CARDIO HIIT: 全画面を統一したダークネイビー基調にする。端末のダークモード設定には依存しない */
+:root{--bg:#111827;--fg:#E8EDF5;--card:#1B2638;--sub:#AAB6C8;--work:#E7B567;--rest:#82B6E8;--ok:#78C6A3;--line:#344256;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#111827;color:#E8EDF5}
+body{background-color:#111827;color:#E8EDF5;font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;font-size:17px;line-height:1.5;transition:background-color .15s ease}
+/* 運動中・休憩中も同じダークネイビーで統一。運動=アンバー／休憩=ブルー */
+body.work,body.rest{--bg:#111827;--card:#1B2638;--fg:#E8EDF5;--sub:#AAB6C8;--line:#344256;--ok:#78C6A3;--work:#E7B567;--rest:#82B6E8;background:#111827!important;background-color:#111827!important;color:#E8EDF5!important}
+body.work #train,body.rest #train{background:#111827!important;background-color:#111827!important;min-height:100vh;color:#E8EDF5}
+html:has(body.work),html:has(body.rest){background:#111827!important;background-color:#111827!important}
+.card,body.work .card,body.rest .card{background:#1B2638;border-color:#344256}
+button{background:#1B2638;color:#E8EDF5;border-color:#344256}
+button.big,body.work button.big,body.rest button.big{background:#E7B567;color:#111827;border-color:#E7B567}
+body.work button,body.rest button{border-color:#344256;color:#E8EDF5}
+body.work .badge{background:#E7B567;color:#111827}
+body.rest .badge{background:#82B6E8;color:#111827}
+body.work #tTime{color:#F0C77F}
+body.rest #tTime{color:#9ACAF3}
+body.work a.btnlink,body.rest a.btnlink{background:#42658B;color:#fff}
+
+.scr{max-width:520px;margin:0 auto;padding:18px 16px 28px}
+h1{font-size:28px;margin:8px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:12px 0}
+.sub{color:var(--sub);font-size:14px}
+button{font:inherit;border:2px solid var(--line);border-radius:14px;padding:14px 18px;min-height:48px;background:var(--card);color:var(--fg);cursor:pointer}
+button.big{width:100%;font-size:22px;font-weight:700;background:var(--work);color:#fff;border-color:var(--work);padding:18px}
+button.ghost{width:100%;margin-top:10px}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{flex:1}
+ul.plan{margin:6px 0 0;padding-left:20px}
+.badge{display:inline-block;padding:4px 16px;border-radius:99px;color:#fff;font-weight:700;font-size:20px;background:var(--work)}
+body.rest .badge{background:var(--rest)}
+#tName{font-size:30px;font-weight:800;margin:10px 0 4px;line-height:1.25}
+/* 円形カウントダウン：リングは現在区間の残り時間、横バーは全体進捗 */
+#train{padding-top:10px;padding-bottom:16px}
+#train .row:first-child{align-items:center;margin-bottom:2px}
+#tName{font-size:clamp(21px,5.8vw,28px);text-align:center;margin:5px 0 2px;line-height:1.2}
+#tDesc{text-align:center;min-height:1.35em;font-size:13px}
+.timerRing{width:min(72vw,310px);height:min(72vw,310px);margin:8px auto 10px;position:relative;display:grid;place-items:center;flex-shrink:0}
+.timerRing svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ringTrack{fill:none;stroke:#344256;stroke-width:7}
+.ringProgress{fill:none;stroke:var(--work);stroke-width:12;stroke-linecap:round;stroke-dasharray:879.65;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .12s linear,stroke .2s ease}
+body.rest .ringProgress{stroke:var(--rest)}
+.ringTicks{fill:none;stroke:#344256;stroke-width:2;stroke-dasharray:2 8;stroke-linecap:butt}
+#tTime{position:relative;z-index:1;font-size:clamp(64px,18vw,112px);font-weight:800;line-height:1;text-align:center;margin:0;font-variant-numeric:tabular-nums;letter-spacing:-.045em;color:#F0C77F}
+body.rest #tTime{color:#9ACAF3}
+.bpmBox{text-align:center;margin:7px 0;padding:8px 12px}
+.bpmLabel{font-size:12px;letter-spacing:.12em;font-weight:700}
+#tBpm{font-size:clamp(30px,8vw,42px);font-weight:800;line-height:1.05;margin:1px 0 5px}
+.bpmBtn{font-size:22px;font-weight:800;padding:6px 0;min-height:42px}
+#bpmBox .row{max-width:300px;margin:auto}
+.bar{height:7px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .1s linear}
+.trainMeta{font-size:12px!important;margin:5px 0 8px!important;line-height:1.4}
+.trainControls button{min-height:50px;padding:10px 12px;font-weight:700}
+#bPause{background:#26364B;border-color:#526780}
+#bEnd{background:#392B36;border-color:#76505C;color:#F3DCE2}
+@media(max-height:740px){.timerRing{width:min(58vw,245px);height:min(58vw,245px);margin:4px auto 5px}#tDesc{font-size:12px}.bpmBox{padding:5px 10px;margin:4px 0}#tBpm{font-size:30px}.bpmBtn{min-height:38px;padding:3px 0}.trainControls button{min-height:46px}.trainMeta{margin:4px 0 6px!important}}
+@media(max-width:360px){.timerRing{width:min(65vw,235px);height:min(65vw,235px)}#tTime{font-size:clamp(58px,17vw,78px)}#tName{font-size:21px}}
+.setrow{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}
+.setrow b{flex:1;font-size:15px}.setrow button{padding:8px 12px;min-height:44px}.setrow span{min-width:40px;text-align:center;font-weight:700}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .h{font-size:13px;color:var(--sub)}
+.cal button{padding:0;height:50px;border-radius:10px;position:relative;font-weight:600;border:1px solid var(--line)}
+.cal button.today{border:3px solid var(--work)}
+.cal button.sel{background:var(--rest);color:#fff;border-color:var(--rest)}
+.cal button.on::after{content:attr(data-n);position:absolute;left:0;right:0;bottom:2px;font-size:11px;color:var(--ok);line-height:1}
+.cal button.sel.on::after{color:#fff}
+.pcard{cursor:pointer;border:3px solid var(--line)}
+.pcard.sel{border-color:var(--work)}
+.exitem{cursor:pointer}.exdet{display:none;margin-top:8px}.exitem.open .exdet{display:block}
+.preitem{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}.preitem .sub{margin:3px 0 8px}.preitem a.btnlink{padding:10px;margin-top:8px}
+a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;border-radius:14px;background:var(--rest);color:#fff;font-weight:700}
+</style>
+</head>
+<body>
+
+<section id="home" class="scr">
+  <h1>🏃 CARDIO HIIT</h1>
+  <div class="card">
+    <b>目的</b><br>1500m走に向けて、心肺機能を伸ばす自宅トレーニング。
+    <div class="sub">道具なし・狭い場所でOK。頑張りすぎず、正しいフォームで行いましょう。つらい時はテンポを下げてOK。</div>
+  </div>
+  <div class="card">
+    <b>予定時間：<span id="homeTotal"></span>（<span id="homePat"></span>）</b>
+    <ul class="plan" id="homePlan"></ul>
+    <div class="sub">20秒運動＋10秒休憩。音声と効果音で進むので、画面を見続けなくてもOK。</div>
+  </div>
+  <button class="big" id="btnStart">トレーニング開始</button>
+  <button class="ghost" id="btnHist">📅 トレーニング履歴</button>
+  <button class="ghost" id="btnExs">📖 エクササイズ一覧</button>
+  <button class="ghost" id="btnSet">⚙ 設定（テンポ・音声）</button>
+  <p class="sub">※ 音が出ます。周りに物がないか確認してから始めましょう。</p>
+</section>
+
+<section id="pattern" class="scr" hidden>
+  <h1>負荷パターンを選ぶ</h1>
+  <div class="sub">どれも同じ種目で、強度の流れが違います。バーが高いほど体への負荷が大きい種目です。</div>
+  <div id="patList"></div>
+  <button class="big" id="btnGo">種目と動画を確認</button>
+  <button class="ghost" id="btnPatBack">戻る</button>
+</section>
+
+<section id="preflight" class="scr" hidden>
+  <h1>トレーニング内容の確認</h1>
+  <div class="card"><b id="preflightTitle"></b><div class="sub">始める前に種目と動画を確認できます。動画を見る場合はリンクをタップしてください。</div></div>
+  <div id="preflightList"></div>
+  <button class="big" id="btnBeginTraining">この内容でトレーニング開始</button>
+  <button class="ghost" id="btnPreflightBack">パターン選択に戻る</button>
+</section>
+
+<section id="history" class="scr" hidden>
+  <h1>トレーニング履歴</h1>
+  <div class="row"><button id="cPrev">◀ 前月</button><b id="cTitle" style="text-align:center"></b><button id="cNext">翌月 ▶</button></div>
+  <div class="card"><div class="cal" id="calGrid"></div></div>
+  <div class="card" id="dayBox"></div>
+  <button class="ghost" id="btnHistBack">戻る</button>
+</section>
+
+<section id="exlist" class="scr" hidden>
+  <h1>エクササイズ一覧</h1>
+  <div class="sub">種目をタップすると詳細が開きます。</div>
+  <div id="exList"></div>
+  <button class="ghost" id="btnExBack">戻る</button>
+</section>
+
+<section id="settings" class="scr" hidden>
+  <h1>設定</h1>
+  <div class="card"><label><input type="checkbox" id="voiceChk"> 音声案内を使う</label></div>
+  <div class="card"><b>種目ごとの初期テンポ（BPM）</b><div class="sub">100〜180。♪で試聴できます。フォームが崩れない速さにしましょう。</div><div id="setList"></div></div>
+  <button class="ghost" id="btnBack">戻る</button>
+</section>
+
+<section id="train" class="scr" hidden>
+  <div class="row"><span class="badge" id="tPhase">準備</span><span class="sub" id="tStage" style="text-align:right"></span></div>
+  <div id="tName"></div>
+  <div class="sub" id="tDesc"></div>
+  <div class="timerRing" role="img" aria-label="現在の種目の残り時間">
+    <svg viewBox="0 0 300 300" aria-hidden="true">
+      <circle class="ringTrack" cx="150" cy="150" r="140"></circle>
+      <circle class="ringTicks" cx="150" cy="150" r="128"></circle>
+      <circle class="ringProgress" id="ringProgress" cx="150" cy="150" r="140"></circle>
+    </svg>
+    <div id="tTime" aria-live="off">20</div>
+  </div>
+  <div class="bpmBox card" id="bpmBox">
+    <div class="sub bpmLabel">TEMPO</div><div id="tBpm">120 BPM</div>
+    <div class="row" id="bpmBtns"><button class="bpmBtn" id="bMinus" aria-label="テンポを5下げる">−5</button><button class="bpmBtn" id="bPlus" aria-label="テンポを5上げる">＋5</button></div>
+  </div>
+  <div class="bar" aria-label="トレーニング全体の進捗"><i id="tBar"></i></div>
+  <div class="sub trainMeta">全体 <span id="tElapsed"></span> ／ <span id="tTotal"></span>　次：<b id="tNext"></b></div>
+  <div class="row trainControls"><button id="bPause">⏸ 一時停止</button><button id="bEnd">■ 終了</button></div>
+</section>
+
+<section id="result" class="scr" hidden>
+  <h1>🎉 お疲れさま！</h1>
+  <div class="card"><b id="rTitle"></b><br>実施時間：<b id="rTime"></b><br>完了サイクル：<b id="rCycle"></b></div>
+  <div class="card"><b>実施した種目</b><ul class="plan" id="rList"></ul></div>
+  <button class="big" id="btnHome">ホームへ</button>
+</section>
+
+<script>
+"use strict";
+/* ===== 種目データ（lv=動作の負荷 1〜5。bpm未指定の種目はテンポなし） ===== */
+const EX = {
+  jog:  {n:"その場ジョギング", d:"その場で軽く走る。腕も振ってリズムよく。", bpm:120, lv:1},
+  high: {n:"もも上げ走", d:"ひざをおなかの高さまで上げて、その場で走る。", bpm:130, lv:3},
+  fast: {n:"ファストフィート", d:"かかとを少し浮かせて、足を細かく素早く動かす。", bpm:150, lv:3},
+  heel: {n:"ヒールタッチラン", d:"かかとをお尻に近づけながら、その場で走る。", bpm:130, lv:2},
+  skip: {n:"その場スキップ", d:"その場でスキップ。ひざを高めに、リズムよく。", bpm:120, lv:2},
+  jack: {n:"ジャンピングジャック", d:"ジャンプしながら手足を大きく開き、また閉じる。", bpm:130, lv:4},
+  rope: {n:"エア縄跳び", d:"縄なしで、小さく軽いジャンプを続ける。", bpm:140, lv:4},
+  split:{n:"スプリットステップ", d:"軽く跳ねて、両足で同時にやわらかく着地する。", bpm:120, lv:2},
+  jsq:  {n:"ジャンプ＆スクワット", d:"しゃがんでから、真上にジャンプ。着地はそっと。", lv:5},
+  sqk:  {n:"スクワット＆ニーアップ", d:"しゃがんで立ち上がりながら、ひざをおなかに引き上げる。", lv:4},
+  lunge:{n:"リバースランジ＆ニーアップ", d:"片足を後ろに引いて沈み、戻りながらひざを上げる。左右交互に。", lv:3},
+  cross:{n:"スタンディング・クロスクランチ", d:"立ったまま、ひじと反対のひざを体の前でタッチ。", lv:2},
+  qsq:  {n:"クォータースクワット連続動作", d:"ひざを少しだけ曲げて、浅いスクワットをテンポよく続ける。", lv:2},
+  slow: {n:"ゆっくり足踏み", d:"ゆっくり足踏みして、深呼吸。心拍を落ち着ける。", bpm:100, lv:1}
+};
+/* YouTube動画URL。種目IDごとに追加（例: jog:"https://www.youtube.com/watch?v=xxxx"）。未設定は「動画リンク未設定」と表示 */
+const VIDEO = {
+  jog:  "https://www.youtube.com/watch?v=-AEzwf7WjLk",
+  high: "https://www.youtube.com/watch?v=nV87RJU8NKI&t=13s",
+  fast: "https://www.youtube.com/shorts/Xe76vX58U3M",
+  heel: "https://www.youtube.com/watch?v=RC1XrzI2MBk&t=14s",
+  skip: "https://www.youtube.com/shorts/0unFz9qy22k",
+  jack: "https://www.youtube.com/shorts/bT2iY8IjEU0",
+  rope: "https://www.youtube.com/watch?v=8VTDa4BJZ1U&t=6s",
+  split:"https://www.youtube.com/watch?v=l3xibeCDFq0&t=532s",
+  jsq:  "https://www.youtube.com/shorts/TqfdxSsTAYs",
+  sqk:  "https://www.youtube.com/watch?v=qbmVSJ-5AJg&t=3s",
+  lunge:"https://www.youtube.com/shorts/qwh11lBFo-s",
+  cross:"https://www.youtube.com/shorts/Yd_6y2EA8nI",
+  qsq:  "https://www.youtube.com/shorts/XhFV72MArmE",
+  slow: "https://www.youtube.com/watch?v=Y7mesqUnEHA&t=12s"
+};
+const ytOK = u => /^https:\/\/((www|m)\.)?youtube\.com\/|^https:\/\/youtu\.be\//.test(u || "");
+
+/* ===== 負荷パターン：[種目ID, 区分, 運動秒数]。ジャンプ系(jack,rope,split,jsq)は連続させない ===== */
+const WARM = [["jog","warm",20],["split","warm",20]], COOL = [["slow","cool",30]];
+const mn = (...ids) => ids.map(id => [id,"main",20]);
+const PATTERNS = {
+  A:{name:"前半ピーク型", desc:"短い準備運動のあと一番きつい運動から始め、だんだん楽になる。", plan:[...WARM,...mn("sqk","jack","fast","lunge","high","skip","heel","cross","qsq","jog"),...COOL]},
+  B:{name:"中盤ピーク型", desc:"軽く始めて、真ん中で一番きつくなり、そのあと楽になる。", plan:[...WARM,...mn("cross","heel","high","jack","sqk","fast","lunge","skip","qsq","jog"),...COOL]},
+  C:{name:"後半ピーク型", desc:"ゆっくり始めて、最後のメイン種目に向けてだんだんきつくなる。", plan:[...WARM,...mn("cross","qsq","heel","skip","high","fast","lunge","jack","sqk","rope"),...COOL]}
+};
+const REST = 10, BPM_MIN = 100, BPM_MAX = 180, STAGE = {warm:"ウォームアップ", main:"メイン", cool:"クールダウン"};
+
+/* ===== 設定の保存 ===== */
+let cfg = {bpm:{}, voice:true, pat:"C"};
+try { Object.assign(cfg, JSON.parse(localStorage.getItem("hiit_cfg") || "{}")); } catch(e) {}
+if(!PATTERNS[cfg.pat]) cfg.pat = "C";
+const saveCfg = () => { try { localStorage.setItem("hiit_cfg", JSON.stringify(cfg)); } catch(e) {} };
+const defBpm = id => cfg.bpm && cfg.bpm[id] || EX[id].bpm;
+const clamp = v => Math.max(BPM_MIN, Math.min(BPM_MAX, v));
+const $ = id => document.getElementById(id);
+const fmt = ms => { const s = Math.round(ms/1000); return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
+const fmtS = s => Math.floor(s/60) + "分" + String(s%60).padStart(2,"0") + "秒";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dkey = d => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+
+/* ===== パターンからセグメント生成 ===== */
+let PLAN = [], SEGS = [], TOTAL = 0;
+function buildSegs(key){
+  PLAN = PATTERNS[key].plan; SEGS = [];
+  PLAN.forEach(([id,st,d],k) => { SEGS.push({t:"rest",ex:id,st,dur:REST,first:k===0}); SEGS.push({t:"work",ex:id,st,dur:d,k}); });
+  TOTAL = SEGS.reduce((a,s) => a+s.dur, 0) * 1000;
+}
+const planMs = key => PATTERNS[key].plan.reduce((a,p) => a+p[2]+REST, 0) * 1000;
+
+function show(id){ ["home","pattern","preflight","history","exlist","settings","train","result"].forEach(x => $(x).hidden = x!==id); if(id!=="train") document.body.className = ""; window.scrollTo(0,0); }
+
+/* ===== ホーム ===== */
+function renderHome(){
+  $("homeTotal").textContent = "約" + fmt(planMs(cfg.pat)); $("homePat").textContent = PATTERNS[cfg.pat].name;
+  $("homePlan").innerHTML = "";
+  ["warm","main","cool"].forEach(st => {
+    const it = PATTERNS[cfg.pat].plan.filter(p => p[1]===st), li = document.createElement("li");
+    li.textContent = STAGE[st] + "：" + it.length + "種目（約" + fmt(it.reduce((a,p) => a+p[2]+REST, 0)*1000) + "）"; $("homePlan").appendChild(li);
+  });
+}
+$("btnStart").onclick = () => { renderPat(); show("pattern"); };
+$("btnHist").onclick = () => openHist();
+$("btnExs").onclick = () => { renderEx(); show("exlist"); };
+$("btnSet").onclick = () => { renderSettings(); show("settings"); };
+["btnBack","btnPatBack","btnHistBack","btnExBack"].forEach(id => $(id).onclick = () => { renderHome(); show("home"); });
+
+/* ===== 負荷パターン選択 ===== */
+function graph(key){
+  const p = PATTERNS[key].plan, w = 300 / p.length;
+  return '<svg viewBox="0 0 300 62" width="100%" height="62" role="img" aria-label="強度の変化">' + p.map((x,i) => {
+    const h = EX[x[0]].lv * 11 + 4;
+    return '<rect x="'+(i*w+1)+'" y="'+(60-h)+'" width="'+(w-2)+'" height="'+h+'" rx="2" fill="'+(x[1]==="main" ? "var(--work)" : "var(--rest)")+'"/>';
+  }).join("") + '</svg>';
+}
+function renderPat(){
+  const b = $("patList"); b.innerHTML = "";
+  Object.keys(PATTERNS).forEach(k => {
+    const d = document.createElement("div"); d.className = "card pcard" + (k===cfg.pat ? " sel" : "");
+    d.innerHTML = "<b>" + (k===cfg.pat ? "✅ " : "") + "パターン" + k + "：" + PATTERNS[k].name + "</b>　<span class='sub'>約" + fmt(planMs(k)) + "</span>" + graph(k) +
+      "<div class='sub'>低 ← 強度 → 高（青：準備・整理、橙：メイン）</div>" + PATTERNS[k].desc;
+    d.onclick = () => { cfg.pat = k; saveCfg(); renderPat(); };
+    b.appendChild(d);
+  });
+}
+function renderPreflight(){
+  const key = cfg.pat, pat = PATTERNS[key];
+  $("preflightTitle").textContent = "パターン" + key + "：" + pat.name + "（約" + fmt(planMs(key)) + "）";
+  const box = $("preflightList"); box.innerHTML = "";
+  const labels = {warm:"ウォームアップ",main:"メイン",cool:"クールダウン"};
+  pat.plan.forEach(([id,st,dur],i) => {
+    const e = EX[id], u = VIDEO[id], card = document.createElement("div");
+    card.className = "preitem";
+    card.innerHTML = "<b>"+(i+1)+". "+esc(e.n)+"</b><div class='sub'>"+labels[st]+" ・ "+dur+"秒 ・ "+(e.bpm ? "基本 "+defBpm(id)+" BPM" : "テンポなし")+"</div><div>"+esc(e.d)+"</div>"+
+      (ytOK(u) ? '<a class="btnlink" target="_blank" rel="noopener noreferrer" href="'+esc(u)+'">▶ この種目の動画を見る</a>' : '<div class="sub">動画リンク未設定</div>');
+    box.appendChild(card);
+  });
+}
+$("btnGo").onclick = () => { renderPreflight(); show("preflight"); };
+$("btnPreflightBack").onclick = () => { renderPat(); show("pattern"); };
+$("btnBeginTraining").onclick = () => start();
+
+/* ===== 設定画面（♪でメトロノーム試聴） ===== */
+function renderSettings(){
+  $("voiceChk").checked = cfg.voice;
+  const box = $("setList"); box.innerHTML = "";
+  Object.keys(EX).filter(id => EX[id].bpm).forEach(id => {
+    const r = document.createElement("div"); r.className = "setrow";
+    r.innerHTML = "<b>" + EX[id].n + "</b><button>−5</button><span>" + defBpm(id) + "</span><button>＋5</button><button>♪</button>";
+    const sp = r.children[2];
+    const set = d => { cfg.bpm[id] = clamp(defBpm(id)+d); sp.textContent = cfg.bpm[id]; saveCfg(); };
+    r.children[1].onclick = () => set(-5); r.children[3].onclick = () => set(5); r.children[4].onclick = () => preview(id);
+    box.appendChild(r);
+  });
+}
+$("voiceChk").onchange = e => { cfg.voice = e.target.checked; saveCfg(); };
+function preview(id){
+  try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); ac.resume(); const b = defBpm(id); for(let i=0;i<6;i++) tone(1100, 0.05, ac.currentTime+0.1+i*60/b, 0.35); } catch(e) {}
+}
+
+/* ===== エクササイズ一覧 ===== */
+function renderEx(){
+  const b = $("exList"); b.innerHTML = "";
+  Object.keys(EX).forEach(id => {
+    const e = EX[id], u = VIDEO[id], d = document.createElement("div"); d.className = "card exitem";
+    d.innerHTML = "<b>" + e.n + "</b><br><span class='sub'>" + (e.bpm ? "テンポあり（基本 " + defBpm(id) + " BPM）" : "テンポなし") + "</span>" +
+      "<div class='exdet'>" + e.d + "<br><span class='sub'>負荷の目安：" + "★".repeat(e.lv) + "☆".repeat(5-e.lv) + "</span><div style='margin-top:10px'>" +
+      (ytOK(u) ? '<a class="btnlink" target="_blank" rel="noopener noreferrer" href="' + esc(u) + '">▶ 動画を見る</a>' : '<span class="sub">動画リンク未設定</span>') + "</div></div>";
+    d.onclick = ev => { if(!ev.target.closest("a")) d.classList.toggle("open"); };
+    b.appendChild(d);
+  });
+}
+
+/* ===== 履歴（localStorage: {v:1, sessions:[...]}。エクスポート時はこのJSONをそのまま出力できます） ===== */
+const HK = "hiit_hist_v1";
+function loadH(){ try { const h = JSON.parse(localStorage.getItem(HK)); if(h && Array.isArray(h.sessions)) return h; } catch(e) {} return {v:1, sessions:[]}; }
+function addSession(s){ try { const h = loadH(); h.sessions.push(s); localStorage.setItem(HK, JSON.stringify(h)); } catch(e) {} }
+let cal = {y:0, m:0, sel:""};
+function openHist(){ const t = new Date(); cal = {y:t.getFullYear(), m:t.getMonth(), sel:dkey(t)}; renderCal(); show("history"); }
+$("cPrev").onclick = () => { cal.m--; if(cal.m<0){cal.m=11; cal.y--;} renderCal(); };
+$("cNext").onclick = () => { cal.m++; if(cal.m>11){cal.m=0; cal.y++;} renderCal(); };
+function renderCal(){
+  const by = {}; loadH().sessions.forEach(s => (by[s.date] = by[s.date] || []).push(s));
+  $("calTitle") ; $("cTitle").textContent = cal.y + "年" + (cal.m+1) + "月";
+  const g = $("calGrid"); g.innerHTML = "";
+  "日月火水木金土".split("").forEach(c => { const d = document.createElement("div"); d.className = "h"; d.textContent = c; g.appendChild(d); });
+  const first = new Date(cal.y, cal.m, 1).getDay(), days = new Date(cal.y, cal.m+1, 0).getDate(), today = dkey(new Date());
+  for(let i=0;i<first;i++) g.appendChild(document.createElement("div"));
+  for(let d=1; d<=days; d++){
+    const k = cal.y + "-" + String(cal.m+1).padStart(2,"0") + "-" + String(d).padStart(2,"0"), b = document.createElement("button");
+    b.textContent = d; b.className = (k===today ? "today " : "") + (k===cal.sel ? "sel " : "") + (by[k] ? "on" : "");
+    if(by[k]) b.dataset.n = by[k].length > 1 ? "×" + by[k].length : "●";
+    b.onclick = () => { cal.sel = k; renderCal(); };
+    g.appendChild(b);
+  }
+  const [y,mo,d] = cal.sel.split("-").map(Number), list = by[cal.sel] || [], box = $("dayBox");
+  let h = "<b>" + y + "年" + mo + "月" + d + "日</b><br>";
+  if(!list.length){ box.innerHTML = h + '<span class="sub">この日の記録はありません。</span>'; return; }
+  h += "実施回数：" + list.length + "回<br>トレーニング時間：" + fmtS(list.reduce((a,s) => a+s.actualSec, 0));
+  list.forEach((s,i) => {
+    const t = new Date(s.startedAt);
+    h += '<div class="card"><b>' + (i+1) + "回目 " + String(t.getHours()).padStart(2,"0") + ":" + String(t.getMinutes()).padStart(2,"0") + "</b>　" + (s.status==="completed" ? "✅ 完了" : "⚠ 中断") +
+      "<br>負荷パターン：" + esc(s.patternName) + "<br>実施時間：" + fmtS(s.actualSec) + "（予定 " + fmtS(s.plannedSec) + "）<ul class='plan'>" +
+      s.exercises.map(e => "<li>" + esc(e.name) + " " + e.actualSec + "/" + e.plannedSec + "秒" + (e.bpmEnd ? "　" + (e.bpmStart!==e.bpmEnd ? e.bpmStart + "→" : "") + e.bpmEnd + "BPM" : "") + (e.done ? "" : "（中断）") + "</li>").join("") + "</ul></div>";
+  });
+  box.innerHTML = h;
+}
+
+/* ===== 音（Web Audio）と音声合成 ===== */
+let ac = null, speaking = false, spTimer = null, speechOK = !!window.speechSynthesis;
+function tone(f, dur, when, vol){
+  if(!ac) return;
+  try {
+    const t = when || ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.frequency.value = f; o.type = "sine"; o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol||0.4, t+0.005); g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+    o.start(t); o.stop(t+dur+0.02);
+  } catch(e) {}
+}
+function speak(text){
+  if(!cfg.voice || !speechOK) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = "ja-JP"; u.rate = 1.05;
+    u.onstart = () => { speaking = true; };
+    u.onend = u.onerror = () => { speaking = false; };
+    clearTimeout(spTimer); spTimer = setTimeout(() => { speaking = false; }, 4500);
+    speechSynthesis.speak(u);
+  } catch(e) { speechOK = false; }
+}
+function stopSpeech(){ try { speechSynthesis.cancel(); } catch(e) {} speaking = false; clearTimeout(spTimer); }
+
+/* ===== メトロノーム（先読みスケジューラ。BPM変更は次の拍から） ===== */
+let mTimer = null, nextBeat = 0;
+const curBpm = () => sessBpm[cur.ex];
+function mStart(delay){
+  mStop(); nextBeat = ac.currentTime + delay;
+  mTimer = setInterval(() => {
+    while(nextBeat < ac.currentTime + 0.12){
+      if(!speaking) tone(1100, 0.05, nextBeat, 0.35);
+      nextBeat += 60 / curBpm();
+    }
+  }, 25);
+}
+function mStop(){ clearInterval(mTimer); mTimer = null; }
+
+/* ===== トレーニング本体 ===== */
+let idx = 0, cur = null, rem = 0, elapsed = 0, last = 0, running = false, tickId = null, said = {}, sessBpm = {}, doneWork = new Set(), wake = null;
+let log = [], startedAt = null, saved = true, patKey = "C";
+
+function start(){
+  try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); ac.resume(); } catch(e) { ac = null; }
+  patKey = cfg.pat; buildSegs(patKey);
+  sessBpm = {}; Object.keys(EX).forEach(id => { if(EX[id].bpm) sessBpm[id] = defBpm(id); });
+  idx = 0; elapsed = 0; doneWork = new Set(); log = []; startedAt = new Date(); saved = false; running = true;
+  try { if(navigator.wakeLock) navigator.wakeLock.request("screen").then(w => wake = w).catch(()=>{}); } catch(e) {}
+  show("train"); begin(0); last = performance.now();
+  clearInterval(tickId); tickId = setInterval(tick, 100);
+}
+function begin(i){
+  idx = i; cur = SEGS[i]; rem = cur.dur*1000; said = {};
+  const e = EX[cur.ex];
+  if(cur.t === "work"){
+    log.push({id:cur.ex, name:e.n, plannedSec:cur.dur, ms:0, done:false, bpmStart:e.bpm ? sessBpm[cur.ex] : null, bpmEnd:e.bpm ? sessBpm[cur.ex] : null});
+    tone(880, 0.25, 0, 0.5); if(e.bpm && ac) mStart(0.6); else mStop();
+    speak("スタート！");
+  } else {
+    mStop(); tone(520, 0.25, 0, 0.5);
+    speak((cur.first ? "はじめます。最初は、" : "休憩。次は、") + e.n + (e.bpm ? "。テンポ" + sessBpm[cur.ex] : ""));
+  }
+  render();
+}
+function tick(){
+  const now = performance.now(), dt = Math.min(now - last, 500); last = now;
+  if(!running) return;
+  rem -= dt; elapsed += dt;
+  if(cur.t === "work"){ const L = log[log.length-1]; L.ms += dt; if(L.bpmEnd) L.bpmEnd = sessBpm[cur.ex]; }
+  const sec = Math.ceil(rem/1000);
+  if(cur.t === "rest" && sec <= 3 && sec >= 1 && !said[sec]){ said[sec] = 1; speak(String(sec)); if(!speechOK || !cfg.voice) tone(700, 0.15, 0, 0.5); }
+  if(cur.t === "work" && sec === 5 && cur.dur >= 15 && !said.five){ said.five = 1; speak("あと5秒"); }
+  if(rem <= 0){
+    if(cur.t === "work"){ doneWork.add(cur.k); log[log.length-1].done = true; }
+    if(idx + 1 >= SEGS.length) return finish(true);
+    begin(idx + 1);
+  }
+  render();
+}
+function render(){
+  const w = cur.t === "work", e = EX[cur.ex];
+  document.body.className = w ? "work" : "rest";
+  $("tPhase").textContent = w ? "運動" : (cur.first ? "準備" : "休憩");
+  $("tStage").textContent = STAGE[cur.st];
+  $("tName").textContent = (w ? "" : "次：") + e.n;
+  $("tDesc").textContent = e.d;
+  $("tTime").textContent = String(Math.max(0, Math.ceil(rem/1000))).padStart(2,"0");
+  const ring = $("ringProgress"), circumference = 2 * Math.PI * 140;
+  const remainingRatio = Math.max(0, Math.min(1, rem / (cur.dur * 1000)));
+  ring.style.strokeDasharray = circumference.toFixed(2);
+  ring.style.strokeDashoffset = (circumference * (1 - remainingRatio)).toFixed(2);
+  $("bpmBox").hidden = !e.bpm;
+  if(e.bpm){ $("tBpm").textContent = sessBpm[cur.ex] + " BPM"; $("bpmBtns").hidden = !w; }
+  const cw = w ? idx : idx + 1, nx = SEGS[cw + 2];
+  $("tNext").textContent = nx ? EX[nx.ex].n : "ラスト！";
+  $("tBar").style.width = Math.min(100, elapsed / TOTAL * 100) + "%";
+  $("tElapsed").textContent = fmt(elapsed); $("tTotal").textContent = fmt(TOTAL);
+  $("bPause").textContent = running ? "⏸ 一時停止" : "▶ 再開";
+}
+function bump(d){ if(cur && cur.t === "work" && EX[cur.ex].bpm){ sessBpm[cur.ex] = clamp(sessBpm[cur.ex] + d); render(); } }
+$("bMinus").onclick = () => bump(-5); $("bPlus").onclick = () => bump(5);
+
+function pause(){ if(!running) return; running = false; mStop(); stopSpeech(); render(); }
+function resume(){
+  if(running) return; running = true; last = performance.now();
+  try { ac && ac.resume(); } catch(e) {}
+  if(cur.t === "work" && EX[cur.ex].bpm && ac) mStart(0.3);
+  render();
+}
+$("bPause").onclick = () => running ? pause() : resume();
+document.addEventListener("visibilitychange", () => { if(document.hidden && !$("train").hidden) pause(); });
+$("bEnd").onclick = () => { const was = running; pause(); if(confirm("トレーニングを終了しますか？")) finish(false); else if(was) resume(); };
+
+/* 記録の保存（タイマー・音とは無関係に、終了時に1回だけ行う） */
+function saveSession(completed){
+  if(saved) return; saved = true;
+  addSession({
+    id: startedAt.getTime(), startedAt: startedAt.toISOString(), date: dkey(startedAt),
+    pattern: patKey, patternName: PATTERNS[patKey].name, plannedSec: Math.round(TOTAL/1000), actualSec: Math.round(elapsed/1000),
+    status: completed ? "completed" : "aborted",
+    exercises: log.map(l => ({id:l.id, name:l.name, plannedSec:l.plannedSec, actualSec:Math.min(l.plannedSec, Math.round(l.ms/1000)), done:l.done, bpmStart:l.bpmStart, bpmEnd:l.bpmEnd}))
+  });
+}
+window.addEventListener("pagehide", () => { if(!saved && startedAt) saveSession(false); });  // 途中で閉じても中断として残す
+
+function finish(completed){
+  running = false; clearInterval(tickId); tickId = null; mStop(); stopSpeech();
+  try { wake && wake.release(); wake = null; } catch(e) {}
+  saveSession(completed);
+  if(completed){ tone(660,0.2,0,0.5); setTimeout(()=>tone(880,0.2,0,0.5),220); setTimeout(()=>tone(1320,0.35,0,0.5),440); }
+  const mainAll = PLAN.every((p,k) => p[1] !== "main" || doneWork.has(k));
+  $("rTitle").textContent = completed ? "全部完了！よくがんばったね！" : "途中までお疲れさま！（記録は保存されました）";
+  $("rTime").textContent = fmt(elapsed);
+  $("rCycle").textContent = (mainAll ? 1 : 0) + " サイクル（メイン全種目）";
+  const done = log.filter(l => l.done);
+  $("rList").innerHTML = done.length ? "" : "<li>なし</li>";
+  done.forEach(l => { const li = document.createElement("li"); li.textContent = l.name + "（" + l.plannedSec + "秒）"; $("rList").appendChild(li); });
+  document.body.className = ""; show("result");
+}
+$("btnHome").onclick = () => { renderHome(); show("home"); };
+renderHome();
+</script>
+</body>
+</html>
