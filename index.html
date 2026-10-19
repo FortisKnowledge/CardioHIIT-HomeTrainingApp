@@ -134,7 +134,7 @@ a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;bord
 <section id="settings" class="scr" hidden>
   <h1>設定</h1>
   <div class="card"><label><input type="checkbox" id="voiceChk"> 音声案内を使う</label></div>
-  <div class="card"><b>種目ごとの初期テンポ（BPM）</b><div class="sub">80〜200。♪で試聴できます。フォームが崩れない速さにしましょう。</div><div id="setList"></div></div>
+  <div class="card"><b>種目ごとの初期テンポ（BPM）</b><div class="sub">80〜450。♪で試聴できます。フォームが崩れない速さにしましょう。</div><div id="setList"></div></div>
   <button class="ghost" id="btnBack">戻る</button>
 </section>
 
@@ -172,7 +172,7 @@ a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;bord
 const EX = {
   jog:  {n:"その場ジョギング", d:"その場で軽く走る。腕も振ってリズムよく。", bpm:140, lv:1},
   high: {n:"もも上げ走", d:"ひざをおなかの高さまで上げて、その場で走る。", bpm:150, lv:3},
-  fast: {n:"ファストフィート", d:"かかとを少し浮かせて、足を細かく素早く動かす。", bpm:200, lv:3},
+  fast: {n:"ファストフィート", d:"かかとを少し浮かせて、足を細かく素早く動かす。", bpm:360, lv:3},
   heel: {n:"ヒールタッチラン", d:"かかとをお尻に近づけながら、その場で走る。", bpm:150, lv:2},
   skip: {n:"その場スキップ", d:"その場でスキップ。ひざを高めに、リズムよく。", bpm:100, lv:2},
   jack: {n:"ジャンピングジャック", d:"ジャンプしながら手足を大きく開き、また閉じる。", bpm:130, lv:4},
@@ -212,7 +212,7 @@ const PATTERNS = {
   B:{name:"中盤ピーク型", desc:"軽く始めて、真ん中で一番きつくなり、そのあと楽になる。", plan:[...WARM,...mn("cross","heel","high","jack","sqk","fast","lunge","skip","qsq","jog"),...COOL]},
   C:{name:"後半ピーク型", desc:"ゆっくり始めて、最後のメイン種目に向けてだんだんきつくなる。", plan:[...WARM,...mn("cross","qsq","heel","skip","high","fast","lunge","jack","sqk","rope"),...COOL]}
 };
-const REST = 10, BPM_MIN = 80, BPM_MAX = 200, STAGE = {warm:"ウォームアップ", main:"メイン", cool:"クールダウン"};
+const REST = 10, BPM_MIN = 80, BPM_MAX = 450, STAGE = {warm:"ウォームアップ", main:"メイン", cool:"クールダウン"};
 
 /* ===== 設定の保存 ===== */
 let cfg = {bpm:{}, voice:true, pat:"C"};
