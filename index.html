@@ -172,17 +172,17 @@ a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;bord
 const EX = {
   jog:  {n:"その場ジョギング", d:"その場で軽く走る。腕も振ってリズムよく。", bpm:140, lv:1},
   high: {n:"もも上げ走", d:"ひざをおなかの高さまで上げて、その場で走る。", bpm:150, lv:3},
-  fast: {n:"ファストフィート", d:"かかとを少し浮かせて、足を細かく素早く動かす。", bpm:365, lv:3},
+  fast: {n:"ファストフィート", d:"かかとを少し浮かせて、足を細かく素早く動かす。", bpm:360, lv:5},
   heel: {n:"ヒールタッチラン", d:"かかとをお尻に近づけながら、その場で走る。", bpm:150, lv:2},
   skip: {n:"その場スキップ", d:"その場でスキップ。ひざを高めに、リズムよく。", bpm:100, lv:2},
   jack: {n:"ジャンピングジャック", d:"ジャンプしながら手足を大きく開き、また閉じる。", bpm:130, lv:4},
   rope: {n:"エア縄跳び", d:"縄なしで、小さく軽いジャンプを続ける。", bpm:140, lv:4},
   split:{n:"スプリットステップ", d:"軽く跳ねて、両足で同時にやわらかく着地する。", bpm:120, lv:2},
-  jsq:  {n:"ジャンプ＆スクワット", d:"しゃがんでから、真上にジャンプ。着地はそっと。", lv:5},
-  sqk:  {n:"スクワット＆ニーアップ", d:"しゃがんで立ち上がりながら、ひざをおなかに引き上げる。", lv:4},
-  lunge:{n:"リバースランジ＆ニーアップ", d:"片足を後ろに引いて沈み、戻りながらひざを上げる。左右交互に。", lv:3},
-  cross:{n:"スタンディング・クロスクランチ", d:"立ったまま、ひじと反対のひざを体の前でタッチ。", lv:2},
-  qsq:  {n:"クォータースクワット連続動作", d:"ひざを少しだけ曲げて、浅いスクワットをテンポよく続ける。", lv:2},
+  jsq:  {n:"ジャンプ＆スクワット", d:"しゃがんでから、真上にジャンプ。着地はそっと。", bpm:95, lv:4},
+  sqk:  {n:"スクワット＆ニーアップ", d:"しゃがんで立ち上がりながら、ひざをおなかに引き上げる。", bpm:100, lv:4},
+  lunge:{n:"リバースランジ＆ニーアップ", d:"片足を後ろに引いて沈み、戻りながらひざを上げる。左右交互に。", bpm:85, lv:3},
+  cross:{n:"スタンディング・クロスクランチ", d:"立ったまま、ひじと反対のひざを体の前でタッチ。", bpm:130, lv:2},
+  qsq:  {n:"クォータースクワット連続動作", d:"ひざを少しだけ曲げて、浅いスクワットをテンポよく続ける。", bpm:90, lv:2},
   slow: {n:"ゆっくり足踏み", d:"ゆっくり足踏みして、深呼吸。心拍を落ち着ける。", bpm:110, lv:1}
 };
 /* YouTube動画URL。種目IDごとに追加（例: jog:"https://www.youtube.com/watch?v=xxxx"）。未設定は「動画リンク未設定」と表示 */
@@ -208,9 +208,9 @@ const ytOK = u => /^https:\/\/((www|m)\.)?youtube\.com\/|^https:\/\/youtu\.be\//
 const WARM = [["jog","warm",20],["split","warm",20]], COOL = [["slow","cool",30]];
 const mn = (...ids) => ids.map(id => [id,"main",20]);
 const PATTERNS = {
-  A:{name:"前半ピーク型", desc:"短い準備運動のあと一番きつい運動から始め、だんだん楽になる。", plan:[...WARM,...mn("sqk","jack","fast","lunge","high","skip","heel","cross","qsq","jog"),...COOL]},
+  A:{name:"前半ピーク型", desc:"短い準備運動のあと一番きつい運動から始め、だんだん楽になる。", plan:[...WARM,...mn("jack","fast","sqk","lunge","high","skip","heel","cross","qsq","jog"),...COOL]},
   B:{name:"中盤ピーク型", desc:"軽く始めて、真ん中で一番きつくなり、そのあと楽になる。", plan:[...WARM,...mn("cross","heel","high","jack","sqk","fast","lunge","skip","qsq","jog"),...COOL]},
-  C:{name:"後半ピーク型", desc:"ゆっくり始めて、最後のメイン種目に向けてだんだんきつくなる。", plan:[...WARM,...mn("cross","qsq","heel","skip","high","fast","lunge","jack","sqk","rope"),...COOL]}
+  C:{name:"後半ピーク型", desc:"ゆっくり始めて、最後のメイン種目に向けてだんだんきつくなる。", plan:[...WARM,...mn("cross","qsq","heel","skip","high","lunge","jack","sqk","rope","fast"),...COOL]}
 };
 const REST = 10, BPM_MIN = 80, BPM_MAX = 450, STAGE = {warm:"ウォームアップ", main:"メイン", cool:"クールダウン"};
 
