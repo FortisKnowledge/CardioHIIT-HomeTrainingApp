@@ -134,7 +134,7 @@ a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;bord
 <section id="settings" class="scr" hidden>
   <h1>設定</h1>
   <div class="card"><label><input type="checkbox" id="voiceChk"> 音声案内を使う</label></div>
-  <div class="card"><b>種目ごとの初期テンポ（BPM）</b><div class="sub">100〜180。♪で試聴できます。フォームが崩れない速さにしましょう。</div><div id="setList"></div></div>
+  <div class="card"><b>種目ごとの初期テンポ（BPM）</b><div class="sub">80〜200。♪で試聴できます。フォームが崩れない速さにしましょう。</div><div id="setList"></div></div>
   <button class="ghost" id="btnBack">戻る</button>
 </section>
 
@@ -170,11 +170,11 @@ a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;bord
 "use strict";
 /* ===== 種目データ（lv=動作の負荷 1〜5。bpm未指定の種目はテンポなし） ===== */
 const EX = {
-  jog:  {n:"その場ジョギング", d:"その場で軽く走る。腕も振ってリズムよく。", bpm:120, lv:1},
-  high: {n:"もも上げ走", d:"ひざをおなかの高さまで上げて、その場で走る。", bpm:130, lv:3},
-  fast: {n:"ファストフィート", d:"かかとを少し浮かせて、足を細かく素早く動かす。", bpm:150, lv:3},
-  heel: {n:"ヒールタッチラン", d:"かかとをお尻に近づけながら、その場で走る。", bpm:130, lv:2},
-  skip: {n:"その場スキップ", d:"その場でスキップ。ひざを高めに、リズムよく。", bpm:120, lv:2},
+  jog:  {n:"その場ジョギング", d:"その場で軽く走る。腕も振ってリズムよく。", bpm:140, lv:1},
+  high: {n:"もも上げ走", d:"ひざをおなかの高さまで上げて、その場で走る。", bpm:150, lv:3},
+  fast: {n:"ファストフィート", d:"かかとを少し浮かせて、足を細かく素早く動かす。", bpm:200, lv:3},
+  heel: {n:"ヒールタッチラン", d:"かかとをお尻に近づけながら、その場で走る。", bpm:150, lv:2},
+  skip: {n:"その場スキップ", d:"その場でスキップ。ひざを高めに、リズムよく。", bpm:100, lv:2},
   jack: {n:"ジャンピングジャック", d:"ジャンプしながら手足を大きく開き、また閉じる。", bpm:130, lv:4},
   rope: {n:"エア縄跳び", d:"縄なしで、小さく軽いジャンプを続ける。", bpm:140, lv:4},
   split:{n:"スプリットステップ", d:"軽く跳ねて、両足で同時にやわらかく着地する。", bpm:120, lv:2},
@@ -183,7 +183,7 @@ const EX = {
   lunge:{n:"リバースランジ＆ニーアップ", d:"片足を後ろに引いて沈み、戻りながらひざを上げる。左右交互に。", lv:3},
   cross:{n:"スタンディング・クロスクランチ", d:"立ったまま、ひじと反対のひざを体の前でタッチ。", lv:2},
   qsq:  {n:"クォータースクワット連続動作", d:"ひざを少しだけ曲げて、浅いスクワットをテンポよく続ける。", lv:2},
-  slow: {n:"ゆっくり足踏み", d:"ゆっくり足踏みして、深呼吸。心拍を落ち着ける。", bpm:100, lv:1}
+  slow: {n:"ゆっくり足踏み", d:"ゆっくり足踏みして、深呼吸。心拍を落ち着ける。", bpm:110, lv:1}
 };
 /* YouTube動画URL。種目IDごとに追加（例: jog:"https://www.youtube.com/watch?v=xxxx"）。未設定は「動画リンク未設定」と表示 */
 const VIDEO = {
@@ -212,7 +212,7 @@ const PATTERNS = {
   B:{name:"中盤ピーク型", desc:"軽く始めて、真ん中で一番きつくなり、そのあと楽になる。", plan:[...WARM,...mn("cross","heel","high","jack","sqk","fast","lunge","skip","qsq","jog"),...COOL]},
   C:{name:"後半ピーク型", desc:"ゆっくり始めて、最後のメイン種目に向けてだんだんきつくなる。", plan:[...WARM,...mn("cross","qsq","heel","skip","high","fast","lunge","jack","sqk","rope"),...COOL]}
 };
-const REST = 10, BPM_MIN = 100, BPM_MAX = 180, STAGE = {warm:"ウォームアップ", main:"メイン", cool:"クールダウン"};
+const REST = 10, BPM_MIN = 80, BPM_MAX = 200, STAGE = {warm:"ウォームアップ", main:"メイン", cool:"クールダウン"};
 
 /* ===== 設定の保存 ===== */
 let cfg = {bpm:{}, voice:true, pat:"C"};
@@ -385,7 +385,7 @@ function mStart(delay){
   mStop(); nextBeat = ac.currentTime + delay;
   mTimer = setInterval(() => {
     while(nextBeat < ac.currentTime + 0.12){
-      if(!speaking) tone(1100, 0.05, nextBeat, 0.35);
+      tone(1100, 0.05, nextBeat, 0.35);   // 音声と同時に鳴らす（音声中もミュートしない）
       nextBeat += 60 / curBpm();
     }
   }, 25);
@@ -426,6 +426,7 @@ function tick(){
   const sec = Math.ceil(rem/1000);
   if(cur.t === "rest" && sec <= 3 && sec >= 1 && !said[sec]){ said[sec] = 1; speak(String(sec)); if(!speechOK || !cfg.voice) tone(700, 0.15, 0, 0.5); }
   if(cur.t === "work" && sec === 5 && cur.dur >= 15 && !said.five){ said.five = 1; speak("あと5秒"); }
+  if(cur.t === "work" && sec <= 3 && sec >= 1 && !said[sec]){ said[sec] = 1; speak(String(sec)); if(!speechOK || !cfg.voice) tone(700, 0.15, 0, 0.5); }  // 運動の残り3・2・1秒をカウント（メトロノームは鳴らし続ける）
   if(rem <= 0){
     if(cur.t === "work"){ doneWork.add(cur.k); log[log.length-1].done = true; }
     if(idx + 1 >= SEGS.length) return finish(true);
