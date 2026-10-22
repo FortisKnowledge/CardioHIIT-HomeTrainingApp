@@ -34,6 +34,10 @@ button.big{width:100%;font-size:22px;font-weight:700;background:var(--work);colo
 button.ghost{width:100%;margin-top:10px}
 .row{display:flex;gap:10px;align-items:center}
 .row>*{flex:1}
+.profileCard label{display:block;margin-bottom:8px}
+.profileCard select{width:100%;min-width:0;min-height:48px;padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg);font:inherit}
+.profileActions{display:flex;gap:8px;margin-top:10px}
+.profileActions button{flex:1;min-width:0;padding:10px 8px;font-size:14px}
 ul.plan{margin:6px 0 0;padding-left:20px}
 .badge{display:inline-block;padding:4px 16px;border-radius:99px;color:#fff;font-weight:700;font-size:20px;background:var(--work)}
 body.rest .badge{background:var(--rest)}
@@ -84,6 +88,16 @@ a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;bord
 
 <section id="home" class="scr">
   <h1>🏃 CARDIO HIIT</h1>
+  <div class="card profileCard">
+    <label for="profileSelect"><b>トレーニングする人</b></label>
+    <select id="profileSelect" aria-label="利用者を切り替える"></select>
+    <div class="profileActions">
+      <button id="btnAddProfile" type="button">＋ 追加</button>
+      <button id="btnRenameProfile" type="button">名前変更</button>
+      <button id="btnDeleteProfile" type="button">削除</button>
+    </div>
+    <div class="sub">設定・トレーニング履歴は利用者ごとに保存されます。</div>
+  </div>
   <div class="card">
     <b>目的</b><br>1500m走に向けて、心肺機能を伸ばす自宅トレーニング。
     <div class="sub">道具なし・狭い場所でOK。頑張りすぎず、正しいフォームで行いましょう。つらい時はテンポを下げてOK。</div>
@@ -214,14 +228,89 @@ const PATTERNS = {
 };
 const REST = 10, BPM_MIN = 80, BPM_MAX = 450, STAGE = {warm:"ウォームアップ", main:"メイン", cool:"クールダウン"};
 
-/* ===== 設定の保存 ===== */
-let cfg = {bpm:{}, voice:true, pat:"C"};
-try { Object.assign(cfg, JSON.parse(localStorage.getItem("hiit_cfg") || "{}")); } catch(e) {}
-if(!PATTERNS[cfg.pat]) cfg.pat = "C";
-const saveCfg = () => { try { localStorage.setItem("hiit_cfg", JSON.stringify(cfg)); } catch(e) {} };
+const $ = id => document.getElementById(id);
+/* ===== 家族プロフィールと利用者別設定 ===== */
+const PROFILE_KEY = "hiit_profiles_v1";
+const CURRENT_PROFILE_KEY = "hiit_current_profile_v1";
+const profileCfgKey = id => "hiit_cfg_profile_" + id;
+const profileHistKey = id => "hiit_hist_v1_profile_" + id;
+let profiles = [];
+try {
+  const savedProfiles = JSON.parse(localStorage.getItem(PROFILE_KEY) || "null");
+  if(Array.isArray(savedProfiles)) profiles = savedProfiles.filter(p => p && p.id && p.name);
+} catch(e) {}
+if(!profiles.length) {
+  profiles = [{id:"user_default", name:"自分"}];
+  try {
+    const oldCfg = localStorage.getItem("hiit_cfg");
+    if(oldCfg && !localStorage.getItem(profileCfgKey("user_default"))) localStorage.setItem(profileCfgKey("user_default"), oldCfg);
+    const oldHist = localStorage.getItem("hiit_hist_v1");
+    if(oldHist && !localStorage.getItem(profileHistKey("user_default"))) localStorage.setItem(profileHistKey("user_default"), oldHist);
+  } catch(e) {}
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profiles)); } catch(e) {}
+}
+let currentProfileId = "";
+try { currentProfileId = localStorage.getItem(CURRENT_PROFILE_KEY) || ""; } catch(e) {}
+if(!profiles.some(p => p.id === currentProfileId)) currentProfileId = profiles[0].id;
+try { localStorage.setItem(CURRENT_PROFILE_KEY, currentProfileId); } catch(e) {}
+function currentProfile() { return profiles.find(p => p.id === currentProfileId) || profiles[0]; }
+function loadProfileCfg(id) {
+  const value = {bpm:{}, voice:true, pat:"C"};
+  try { Object.assign(value, JSON.parse(localStorage.getItem(profileCfgKey(id)) || "{}")); } catch(e) {}
+  if(!value.bpm || typeof value.bpm !== "object") value.bpm = {};
+  if(!PATTERNS[value.pat]) value.pat = "C";
+  return value;
+}
+function renderProfileSelect() {
+  const select = $("profileSelect");
+  if(!select) return;
+  select.innerHTML = "";
+  profiles.forEach(p => {
+    const option = document.createElement("option");
+    option.value = p.id; option.textContent = p.name;
+    select.appendChild(option);
+  });
+  select.value = currentProfileId;
+}
+let cfg = loadProfileCfg(currentProfileId);
+const saveCfg = () => { try { localStorage.setItem(profileCfgKey(currentProfileId), JSON.stringify(cfg)); } catch(e) {} };
+$("profileSelect").onchange = e => {
+  saveCfg(); currentProfileId = e.target.value;
+  try { localStorage.setItem(CURRENT_PROFILE_KEY, currentProfileId); } catch(e) {}
+  cfg = loadProfileCfg(currentProfileId); renderProfileSelect(); renderHome();
+};
+$("btnAddProfile").onclick = () => {
+  const name = (prompt("追加する利用者の名前を入力してください。") || "").trim();
+  if(!name) return;
+  if(profiles.some(p => p.name.toLowerCase() === name.toLowerCase())) { alert("同じ名前の利用者がすでに登録されています。"); return; }
+  const id = "user_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+  profiles.push({id, name});
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profiles)); } catch(e) {}
+  saveCfg(); currentProfileId = id;
+  try { localStorage.setItem(CURRENT_PROFILE_KEY, currentProfileId); } catch(e) {}
+  cfg = loadProfileCfg(currentProfileId); renderProfileSelect(); renderHome();
+};
+$("btnRenameProfile").onclick = () => {
+  const profile = currentProfile();
+  const name = (prompt("新しい名前を入力してください。", profile.name) || "").trim();
+  if(!name || name === profile.name) return;
+  if(profiles.some(p => p.id !== profile.id && p.name.toLowerCase() === name.toLowerCase())) { alert("同じ名前の利用者がすでに登録されています。"); return; }
+  profile.name = name;
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profiles)); } catch(e) {}
+  renderProfileSelect(); renderHome();
+};
+$("btnDeleteProfile").onclick = () => {
+  if(profiles.length <= 1) { alert("最後の1人は削除できません。"); return; }
+  const profile = currentProfile();
+  if(!confirm("「" + profile.name + "」の設定とトレーニング履歴を削除します。この操作は取り消せません。よろしいですか？")) return;
+  try { localStorage.removeItem(profileCfgKey(profile.id)); localStorage.removeItem(profileHistKey(profile.id)); } catch(e) {}
+  profiles = profiles.filter(p => p.id !== profile.id); currentProfileId = profiles[0].id;
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profiles)); localStorage.setItem(CURRENT_PROFILE_KEY, currentProfileId); } catch(e) {}
+  cfg = loadProfileCfg(currentProfileId); renderProfileSelect(); renderHome();
+};
 const defBpm = id => cfg.bpm && cfg.bpm[id] || EX[id].bpm;
 const clamp = v => Math.max(BPM_MIN, Math.min(BPM_MAX, v));
-const $ = id => document.getElementById(id);
+
 const fmt = ms => { const s = Math.round(ms/1000); return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
 const fmtS = s => Math.floor(s/60) + "分" + String(s%60).padStart(2,"0") + "秒";
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -319,12 +408,11 @@ function renderEx(){
   });
 }
 
-/* ===== 履歴（localStorage: {v:1, sessions:[...]}。エクスポート時はこのJSONをそのまま出力できます） ===== */
-const HK = "hiit_hist_v1";
-function loadH(){ try { const h = JSON.parse(localStorage.getItem(HK)); if(h && Array.isArray(h.sessions)) return h; } catch(e) {} return {v:1, sessions:[]}; }
-function addSession(s){ try { const h = loadH(); h.sessions.push(s); localStorage.setItem(HK, JSON.stringify(h)); } catch(e) {} }
+/* ===== 履歴（利用者ごとにlocalStorageへ保存） ===== */
+function loadH(){ try { const h = JSON.parse(localStorage.getItem(profileHistKey(currentProfileId))); if(h && Array.isArray(h.sessions)) return h; } catch(e) {} return {v:1, sessions:[]}; }
+function addSession(s){ try { const h = loadH(); h.sessions.push(s); localStorage.setItem(profileHistKey(currentProfileId), JSON.stringify(h)); } catch(e) {} }
 let cal = {y:0, m:0, sel:""};
-function openHist(){ const t = new Date(); cal = {y:t.getFullYear(), m:t.getMonth(), sel:dkey(t)}; renderCal(); show("history"); }
+function openHist(){ $("history").querySelector("h1").textContent = "トレーニング履歴（" + currentProfile().name + "）"; const t = new Date(); cal = {y:t.getFullYear(), m:t.getMonth(), sel:dkey(t)}; renderCal(); show("history"); }
 $("cPrev").onclick = () => { cal.m--; if(cal.m<0){cal.m=11; cal.y--;} renderCal(); };
 $("cNext").onclick = () => { cal.m++; if(cal.m>11){cal.m=0; cal.y++;} renderCal(); };
 function renderCal(){
@@ -495,6 +583,7 @@ function finish(completed){
   document.body.className = ""; show("result");
 }
 $("btnHome").onclick = () => { renderHome(); show("home"); };
+renderProfileSelect();
 renderHome();
 </script>
 </body>
