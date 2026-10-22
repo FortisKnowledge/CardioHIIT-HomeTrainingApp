@@ -5,26 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CARDIO HIIT</title>
 <style>
-/* CARDIO HIIT: 全画面を統一したダークネイビー基調にする。端末のダークモード設定には依存しない */
-:root{--bg:#111827;--fg:#E8EDF5;--card:#1B2638;--sub:#AAB6C8;--work:#E7B567;--rest:#82B6E8;--ok:#78C6A3;--line:#344256;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:#111827;color:#E8EDF5}
-body{background-color:#111827;color:#E8EDF5;font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;font-size:17px;line-height:1.5;transition:background-color .15s ease}
-/* 運動中・休憩中も同じダークネイビーで統一。運動=アンバー／休憩=ブルー */
-body.work,body.rest{--bg:#111827;--card:#1B2638;--fg:#E8EDF5;--sub:#AAB6C8;--line:#344256;--ok:#78C6A3;--work:#E7B567;--rest:#82B6E8;background:#111827!important;background-color:#111827!important;color:#E8EDF5!important}
-body.work #train,body.rest #train{background:#111827!important;background-color:#111827!important;min-height:100vh;color:#E8EDF5}
-html:has(body.work),html:has(body.rest){background:#111827!important;background-color:#111827!important}
-.card,body.work .card,body.rest .card{background:#1B2638;border-color:#344256}
-button{background:#1B2638;color:#E8EDF5;border-color:#344256}
-button.big,body.work button.big,body.rest button.big{background:#E7B567;color:#111827;border-color:#E7B567}
-body.work button,body.rest button{border-color:#344256;color:#E8EDF5}
-body.work .badge{background:#E7B567;color:#111827}
-body.rest .badge{background:#82B6E8;color:#111827}
-body.work #tTime{color:#F0C77F}
-body.rest #tTime{color:#9ACAF3}
-body.work a.btnlink,body.rest a.btnlink{background:#42658B;color:#fff}
-
 .scr{max-width:520px;margin:0 auto;padding:18px 16px 28px}
 h1{font-size:28px;margin:8px 0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:12px 0}
@@ -82,13 +62,109 @@ body.rest #tTime{color:#9ACAF3}
 .exitem{cursor:pointer}.exdet{display:none;margin-top:8px}.exitem.open .exdet{display:block}
 .preitem{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}.preitem .sub{margin:3px 0 8px}.preitem a.btnlink{padding:10px;margin-top:8px}
 a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;border-radius:14px;background:var(--rest);color:#fff;font-weight:700}
+
+/* ================= COCKPIT THEME（既存ルールの後ろで上書き） ================= */
+:root{--bg:#14171b;--fg:#EDEFF2;--card:rgba(255,255,255,.06);--sub:#A9B1BC;--work:#FFB04A;--rest:#5CD6EA;--ok:#6FD3B2;--line:rgba(255,255,255,.14);--accent:#5CD6EA;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+[hidden]{display:none!important}
+html{background:#0d0f12}
+html,body{margin:0;min-height:100%;color:var(--fg)}
+body{font-family:"Avenir Next","Helvetica Neue",-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;background-color:#0d0f12;background-attachment:fixed;
+background-image:radial-gradient(900px 620px at 6% -8%,rgba(255,128,48,.34),transparent 62%),radial-gradient(820px 600px at 104% 2%,rgba(92,214,234,.15),transparent 56%),radial-gradient(1000px 720px at 50% 118%,rgba(214,90,38,.26),transparent 62%),linear-gradient(160deg,#171a1f,#0b0d10 60%,#15110e)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px)}
+.scr{position:relative;z-index:1}
+body.work{--accent:var(--work)}body.rest{--accent:var(--rest)}
+h1{font-weight:300;letter-spacing:.06em}
+.card{background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.12);border-top-color:rgba(255,255,255,.26);border-radius:22px;padding:16px 18px;margin:12px 0;-webkit-backdrop-filter:blur(22px) saturate(1.3);backdrop-filter:blur(22px) saturate(1.3);box-shadow:0 12px 32px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.08)}
+.sub{color:var(--sub)}
+button{font:inherit;color:var(--fg);background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.18);border-radius:16px;min-height:52px;padding:12px 18px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 4px 14px rgba(0,0,0,.32);transition:transform .12s ease,border-color .2s ease,box-shadow .2s ease}
+button:hover{border-color:rgba(92,214,234,.65);box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 0 18px rgba(92,214,234,.22)}
+button:active{transform:scale(.98)}
+button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid #5CD6EA;outline-offset:2px}
+button.big{background:linear-gradient(180deg,#FFC578,#F08A24);color:#1b1208;border:1px solid #FFD6A0;font-weight:800;letter-spacing:.05em;box-shadow:0 8px 28px rgba(255,150,50,.36),inset 0 1px 0 rgba(255,255,255,.55)}
+button.big:hover{border-color:#fff;box-shadow:0 8px 34px rgba(255,160,60,.55),inset 0 1px 0 rgba(255,255,255,.6)}
+.profileCard select{background:#14171b;color:var(--fg);border:1px solid rgba(255,255,255,.2)}
+.badge,body.work .badge,body.rest .badge{background:rgba(255,255,255,.06);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 65%,transparent);letter-spacing:.2em;font-size:15px;padding:4px 16px;box-shadow:0 0 16px color-mix(in srgb,var(--accent) 28%,transparent)}
+.pcard{border:1px solid rgba(255,255,255,.14)}
+.pcard.sel{border-color:var(--work);box-shadow:0 0 0 1px var(--work),0 0 30px rgba(255,176,74,.25),0 12px 32px rgba(0,0,0,.38)}
+.cal button{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
+.cal button.today{border:2px solid var(--work)}
+.cal button.sel{background:linear-gradient(180deg,#7FE3F2,#3FB8CF);color:#04222a;border-color:#9CEBF7}
+.cal button.sel.on::after{color:#04222a}
+.preitem{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}
+a.btnlink{background:linear-gradient(180deg,#7FE3F2,#3FB8CF);color:#04222a}
+/* ホーム */
+.homeScr{max-width:1040px}
+.homeTop{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+.brand h1{margin:0;font-size:clamp(26px,5vw,40px);font-weight:300;letter-spacing:.2em;line-height:1.1}
+.brand h1 em{font-style:normal;font-weight:800;color:var(--work);text-shadow:0 0 22px rgba(255,176,74,.45)}
+.brandSub{letter-spacing:.3em;font-size:11px;margin-top:4px}
+.userPill{display:flex;align-items:center;gap:10px;padding:7px 18px 7px 7px;border-radius:99px;background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.userPill .avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#1b1208;background:linear-gradient(145deg,#FFC578,#E9792A);box-shadow:0 0 16px rgba(255,150,50,.4)}
+.userPill .upText{display:flex;flex-direction:column;line-height:1.25}.userPill .upText .sub{font-size:11px}
+.dash{display:grid;gap:14px;grid-template-columns:1fr}
+.dash .card{margin:0}
+.eyebrow{font-size:11px;letter-spacing:.28em;color:var(--rest);font-weight:700}
+.heroTime{font-size:clamp(48px,11vw,76px);font-weight:200;line-height:1.05;letter-spacing:-.02em;margin-top:4px}
+.heroPat{font-size:20px;font-weight:700;color:var(--work);margin-bottom:6px}
+.homeGraph svg{height:92px;margin:6px 0;filter:drop-shadow(0 0 8px rgba(255,150,50,.25))}
+.hero .big{margin:10px 0 8px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:92px;font-size:15px;line-height:1.3;text-align:center;padding:12px 8px;border-radius:20px}
+.tile .ico{font-size:24px;color:var(--rest)}
+@media(min-width:760px){.dash{grid-template-columns:1.35fr 1fr;grid-template-areas:"hero prof" "hero purp" "tiles tiles"}.hero{grid-area:hero}.dash .profileCard{grid-area:prof}.dash .purpose{grid-area:purp}.tiles{grid-area:tiles}}
+/* トレーニング画面 */
+#train .timerRing{filter:drop-shadow(0 18px 30px rgba(0,0,0,.55))}
+.bezelOut{fill:none;stroke:url(#metalG);stroke-width:3}
+.bezelIn{fill:none;stroke:rgba(255,255,255,.1);stroke-width:1}
+.ringTrack{stroke:rgba(255,255,255,.09);stroke-width:8}
+.ringTicks{stroke:rgba(255,255,255,.22)}
+.ringProgress{stroke:var(--accent);filter:drop-shadow(0 0 6px color-mix(in srgb,var(--accent) 75%,transparent))}
+.ringGlow{fill:none;stroke:var(--accent);stroke-width:18;opacity:.12}
+.ringSpark{fill:#fff;opacity:.4;transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 5px var(--accent)) drop-shadow(0 0 12px var(--accent))}
+#train #tTime{color:#FFF6EA;text-shadow:0 0 28px color-mix(in srgb,var(--accent) 55%,transparent);font-weight:700}
+#train #tName{font-weight:700;letter-spacing:.03em}
+#train .bpmBox{background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.03))}
+#train #tBpm{color:var(--accent);font-weight:300;letter-spacing:.04em;text-shadow:0 0 18px color-mix(in srgb,var(--accent) 45%,transparent)}
+.bpmLabel{color:var(--sub)}
+.leds{display:flex;justify-content:center;gap:10px;margin:2px 0 6px}
+.leds i{width:26px;height:5px;border-radius:3px;background:rgba(255,255,255,.14);transition:background .08s,box-shadow .08s}
+.leds i.on{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+#train .bpmBtn{min-height:54px;font-size:24px}
+#train .bar{height:6px;background:rgba(255,255,255,.12)}
+#train .bar i{background:linear-gradient(90deg,var(--rest),var(--work));box-shadow:0 0 10px rgba(255,176,74,.5)}
+#train .trainControls{gap:14px;margin-top:6px}
+#train .trainControls button{min-height:58px;font-size:17px;letter-spacing:.06em}
+#train #bPause{background:linear-gradient(180deg,rgba(92,214,234,.22),rgba(92,214,234,.07));border-color:rgba(92,214,234,.55)}
+#train #bEnd{background:linear-gradient(180deg,rgba(255,120,120,.18),rgba(255,120,120,.05));border-color:rgba(255,140,140,.45);color:#FFE2E2}
+@media(min-width:880px) and (orientation:landscape){
+#train:not([hidden]){max-width:1120px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);column-gap:56px;align-content:center;min-height:100vh;padding:24px 32px}
+#train>.timerRing{grid-column:1;grid-row:1/9;width:min(78vh,520px);height:min(78vh,520px);margin:auto}
+#train>*:not(.timerRing){grid-column:2}
+#train #tName{font-size:clamp(30px,4vw,48px);text-align:left}#train #tDesc{text-align:left;font-size:16px}
+#train .timerRing #tTime{font-size:clamp(90px,19vh,200px)}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 
-<section id="home" class="scr">
-  <h1>🏃 CARDIO HIIT</h1>
-  <div class="card profileCard">
+<section id="home" class="scr homeScr">
+  <header class="homeTop">
+    <div class="brand"><h1>CARDIO <em>HIIT</em></h1><div class="sub brandSub">HOME INTERVAL CONSOLE</div></div>
+    <div class="userPill" aria-live="polite"><span class="avatar" id="homeAvatar">自</span><span class="upText"><span class="sub">トレーニングする人</span><b id="homeUser"></b></span></div>
+  </header>
+  <div class="dash">
+    <div class="card hero">
+      <div class="eyebrow">NEXT SESSION ／ 予定時間</div>
+      <div class="heroTime"><span id="homeTotal"></span></div>
+      <div class="heroPat"><span id="homePat"></span></div>
+      <div class="homeGraph" id="homeGraph" aria-hidden="true"></div>
+      <ul class="plan" id="homePlan"></ul>
+      <button class="big" id="btnStart">トレーニング開始</button>
+      <div class="sub">20秒運動＋10秒休憩。音声と効果音で進むので、画面を見続けなくてもOK。</div>
+    </div>
+    <div class="card profileCard">
     <label for="profileSelect"><b>トレーニングする人</b></label>
     <select id="profileSelect" aria-label="利用者を切り替える"></select>
     <div class="profileActions">
@@ -98,19 +174,17 @@ a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;bord
     </div>
     <div class="sub">設定・トレーニング履歴は利用者ごとに保存されます。</div>
   </div>
-  <div class="card">
-    <b>目的</b><br>1500m走に向けて、心肺機能を伸ばす自宅トレーニング。
-    <div class="sub">道具なし・狭い場所でOK。頑張りすぎず、正しいフォームで行いましょう。つらい時はテンポを下げてOK。</div>
+    <div class="card purpose">
+      <div class="eyebrow">PURPOSE</div>
+      1500m走に向けて、心肺機能を伸ばす自宅トレーニング。
+      <div class="sub">道具なし・狭い場所でOK。頑張りすぎず、正しいフォームで行いましょう。つらい時はテンポを下げてOK。</div>
+    </div>
+    <div class="tiles">
+      <button class="tile" id="btnHist"><span class="ico">▦</span>トレーニング履歴</button>
+      <button class="tile" id="btnExs"><span class="ico">≣</span>エクササイズ一覧</button>
+      <button class="tile" id="btnSet"><span class="ico">⚙</span>設定（テンポ・音声）</button>
+    </div>
   </div>
-  <div class="card">
-    <b>予定時間：<span id="homeTotal"></span>（<span id="homePat"></span>）</b>
-    <ul class="plan" id="homePlan"></ul>
-    <div class="sub">20秒運動＋10秒休憩。音声と効果音で進むので、画面を見続けなくてもOK。</div>
-  </div>
-  <button class="big" id="btnStart">トレーニング開始</button>
-  <button class="ghost" id="btnHist">📅 トレーニング履歴</button>
-  <button class="ghost" id="btnExs">📖 エクササイズ一覧</button>
-  <button class="ghost" id="btnSet">⚙ 設定（テンポ・音声）</button>
   <p class="sub">※ 音が出ます。周りに物がないか確認してから始めましょう。</p>
 </section>
 
@@ -158,14 +232,23 @@ a.btnlink{display:block;text-align:center;text-decoration:none;padding:14px;bord
   <div class="sub" id="tDesc"></div>
   <div class="timerRing" role="img" aria-label="現在の種目の残り時間">
     <svg viewBox="0 0 300 300" aria-hidden="true">
+      <defs>
+        <linearGradient id="metalG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dfe3e8"/><stop offset=".35" stop-color="#6b727c"/><stop offset=".62" stop-color="#2b2f36"/><stop offset="1" stop-color="#9aa1ab"/></linearGradient>
+        <filter id="ringBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+      </defs>
+      <circle class="bezelOut" cx="150" cy="150" r="149"></circle>
+      <circle class="bezelIn" cx="150" cy="150" r="118"></circle>
       <circle class="ringTrack" cx="150" cy="150" r="140"></circle>
       <circle class="ringTicks" cx="150" cy="150" r="128"></circle>
+      <circle class="ringGlow" id="ringGlow" cx="150" cy="150" r="140" filter="url(#ringBlur)"></circle>
       <circle class="ringProgress" id="ringProgress" cx="150" cy="150" r="140"></circle>
+      <circle class="ringSpark" id="ringSpark" cx="150" cy="10" r="6" visibility="hidden"></circle>
     </svg>
     <div id="tTime" aria-live="off">20</div>
   </div>
   <div class="bpmBox card" id="bpmBox">
     <div class="sub bpmLabel">TEMPO</div><div id="tBpm">120 BPM</div>
+    <div class="leds" id="beatLeds" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="row" id="bpmBtns"><button class="bpmBtn" id="bMinus" aria-label="テンポを5下げる">−5</button><button class="bpmBtn" id="bPlus" aria-label="テンポを5上げる">＋5</button></div>
   </div>
   <div class="bar" aria-label="トレーニング全体の進捗"><i id="tBar"></i></div>
@@ -329,6 +412,9 @@ function show(id){ ["home","pattern","preflight","history","exlist","settings","
 
 /* ===== ホーム ===== */
 function renderHome(){
+  const pr = currentProfile();
+  if($("homeUser")){ $("homeUser").textContent = pr.name; $("homeAvatar").textContent = Array.from(pr.name)[0] || "?"; }
+  if($("homeGraph")) $("homeGraph").innerHTML = graph(cfg.pat);
   $("homeTotal").textContent = "約" + fmt(planMs(cfg.pat)); $("homePat").textContent = PATTERNS[cfg.pat].name;
   $("homePlan").innerHTML = "";
   ["warm","main","cool"].forEach(st => {
@@ -470,15 +556,45 @@ function stopSpeech(){ try { speechSynthesis.cancel(); } catch(e) {} speaking = 
 let mTimer = null, nextBeat = 0;
 const curBpm = () => sessBpm[cur.ex];
 function mStart(delay){
-  mStop(); nextBeat = ac.currentTime + delay;
+  mStop(); beatNo = 0; nextBeat = ac.currentTime + delay;
   mTimer = setInterval(() => {
     while(nextBeat < ac.currentTime + 0.12){
       tone(1100, 0.05, nextBeat, 0.35);   // 音声と同時に鳴らす（音声中もミュートしない）
+      queueBeat(nextBeat);                // 同じ拍の時刻を発光用キューへ（音は間引かない）
       nextBeat += 60 / curBpm();
     }
   }, 25);
 }
-function mStop(){ clearInterval(mTimer); mTimer = null; }
+function mStop(){ clearInterval(mTimer); mTimer = null; beatQ.length = 0; }
+
+/* ===== BPM同期の発光演出 =====
+   メトロノームが音をスケジュールした「同じ時刻」をキューに積み、AudioContextの現在時刻がその時刻に
+   達した瞬間（出力遅延を補正）にrequestAnimationFrameで発光させる。CSSの周期アニメーションは使わない。 */
+const VIS_FLASH_MAX_BPM = 180;   // 発光は毎分この回数まで。これを超えるテンポは N拍に1回に間引く（音は間引かない）
+const VIS_FLASH_MAX_BPM_REDUCED = 120;  // 視覚効果を減らす設定の端末ではさらに間引く
+const reduced = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+const visDiv = bpm => Math.max(1, Math.ceil(bpm / (reduced() ? VIS_FLASH_MAX_BPM_REDUCED : VIS_FLASH_MAX_BPM)));
+let beatQ = [], beatNo = 0, flashN = 0;
+function queueBeat(t){ const d = visDiv(curBpm()); if(beatNo++ % d === 0){ beatQ.push(t); if(beatQ.length > 64) beatQ.splice(0, 32); } }
+function anim(el, kf, opt){ try { el && el.animate(kf, opt); } catch(e) {} }
+function flashBeat(){
+  const rm = reduced(); flashN++;
+  document.querySelectorAll("#beatLeds i").forEach((l,i) => l.classList.toggle("on", i === flashN % 4));
+  anim($("ringSpark"), rm ? [{opacity:1},{opacity:.4}] : [{opacity:1, transform:"scale(2.6)"},{opacity:.4, transform:"scale(1)"}], {duration:240, easing:"ease-out"});
+  anim($("ringGlow"), [{opacity:.55},{opacity:.12}], {duration:260, easing:"ease-out"});
+  if(!rm) anim($("tBpm"), [{transform:"scale(1.07)", filter:"brightness(1.5)"},{transform:"none", filter:"none"}], {duration:200, easing:"ease-out"});
+}
+function visLoop(){
+  if(ac && beatQ.length){
+    const now = ac.currentTime - Math.min(0.3, ac.outputLatency || ac.baseLatency || 0);
+    while(beatQ.length && beatQ[0] <= now){ const t = beatQ.shift(); if(now - t < 0.25) flashBeat(); }
+  }
+  requestAnimationFrame(visLoop);
+}
+requestAnimationFrame(visLoop);
+function tempoFx(d){
+  anim($("tBpm"), reduced() ? [{opacity:.5},{opacity:1}] : [{transform:"translateY(" + (d > 0 ? -6 : 6) + "px) scale(1.1)", opacity:.6},{transform:"none", opacity:1}], {duration:260, easing:"cubic-bezier(.2,.8,.2,1)"});
+}
 
 /* ===== トレーニング本体 ===== */
 let idx = 0, cur = null, rem = 0, elapsed = 0, last = 0, running = false, tickId = null, said = {}, sessBpm = {}, doneWork = new Set(), wake = null;
@@ -534,6 +650,10 @@ function render(){
   const remainingRatio = Math.max(0, Math.min(1, rem / (cur.dur * 1000)));
   ring.style.strokeDasharray = circumference.toFixed(2);
   ring.style.strokeDashoffset = (circumference * (1 - remainingRatio)).toFixed(2);
+  const sp = $("ringSpark"), ang = remainingRatio * 2 * Math.PI;
+  sp.setAttribute("cx", (150 + 140 * Math.sin(ang)).toFixed(1)); sp.setAttribute("cy", (150 - 140 * Math.cos(ang)).toFixed(1));
+  sp.setAttribute("visibility", e.bpm && w ? "visible" : "hidden");
+  if(!(e.bpm && w)) document.querySelectorAll("#beatLeds i.on").forEach(l => l.classList.remove("on"));
   $("bpmBox").hidden = !e.bpm;
   if(e.bpm){ $("tBpm").textContent = sessBpm[cur.ex] + " BPM"; $("bpmBtns").hidden = !w; }
   const cw = w ? idx : idx + 1, nx = SEGS[cw + 2];
@@ -542,7 +662,7 @@ function render(){
   $("tElapsed").textContent = fmt(elapsed); $("tTotal").textContent = fmt(TOTAL);
   $("bPause").textContent = running ? "⏸ 一時停止" : "▶ 再開";
 }
-function bump(d){ if(cur && cur.t === "work" && EX[cur.ex].bpm){ sessBpm[cur.ex] = clamp(sessBpm[cur.ex] + d); render(); } }
+function bump(d){ if(cur && cur.t === "work" && EX[cur.ex].bpm){ sessBpm[cur.ex] = clamp(sessBpm[cur.ex] + d); render(); tempoFx(d); } }
 $("bMinus").onclick = () => bump(-5); $("bPlus").onclick = () => bump(5);
 
 function pause(){ if(!running) return; running = false; mStop(); stopSpeech(); render(); }
